@@ -1,0 +1,51 @@
+
+skopeo copy --override-arch=s390x docker://metaco.azurecr.io/harmonize/approval-notary:1.9.74 docker-archive:approval-notary-1.9.74.tar
+skopeo copy docker-archive:/tmp/approval-notary-1.9.74.tar docker://registry.control23.dap.local/harmonize/approval-notary:1.9.74 --dest-creds $REGISTRY_USER:$REGISTRY_PASSWORD --remove-signatures
+skopeo inspect docker://registry.control23.dap.local/harmonize/approval-notary:1.9.74 --creds $REGISTRY_USER:$REGISTRY_PASSWORD | jq '.Name + "@" + .Digest
+
+
+
+Parameter les certficats de connections grep11:
+
+dans le gen.sh
+cp grep11ca.pem grep11server-key.pem grep11server.pem ~/WORK/KMSHMZVAULT/coldvault/grep11srv/
+for i in ca client-key client; do cp grep11$i.pem ~/WORK/KMSHMZVAULT/coldvault/cert/$i.pem; done
+
+
+
+
+#Mettre les certs du grep11 client ds le répertoire coldault/cert
+
+#Modifier les parametres dans le env file
+   - vaultid
+   - notary pubkey
+
+#Generer le docker-compose dans le répertoire coldvault:
+
+   - Dans le config file, indiquer les IMAGES1,2 et 3 et 4
+   - Lancer la commande
+
+. ./config
+sed -e "s#IMAGE1#${REGISTRYURL}/${IMAGE1}#" -e "s#IMAGE2#${REGISTRYURL}/${IMAGE2}#" -e "s#IMAGE3#${REGISTRYURL}/${IMAGE3}#" -e "s#IMAGE4#${REGISTRYURL}/${IMAGE4}#" docker-compose.yaml.template > coldvault/docker-compose.yaml
+
+#Generer le contract pour OSO:
+
+Lancer ./create-workload.sh
+
+
+
+---------------
+Pour lancer en standalone, il faut utiliser le toolkit
+
+- On choisit le repertoire d installation des images du VM guest:
+mkdir /var/lib/libvirt/images/hpcrkms
+(mettre le param LIBVIRTPATH dans le fichier config)
+
+- Generer le domaine avec un data disk de 10G
+./gendomain -d vault -D 10G -t 1 > domain.xml
+
+- Genérer le contrat
+./gencontract --pass1 hello --pass2 world -e -d coldvault -E envfile -D
+
+Annexe:  Si on souhaite changer la taille du root filesystemn, voici la commande
+rm /var/lib/libvirt/images/grep11-overlay.qcow2; qemu-img create -f qcow2 /var/lib/libvirt/images/grep11-overlay.qcow2 6G

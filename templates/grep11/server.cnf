@@ -1,0 +1,15 @@
+[ req ]
+default_bits = 2048
+default_md = sha256
+prompt = no
+encrypt_key = no
+distinguished_name = dn
+
+[ grep11server ]
+subjectAltName = DNS.1:grep11:9876,DNS.2:grep11,DNS.3:internalgrep11,DNS.4:internalgrep11:9876
+extendedKeyUsage = serverAuth
+
+[ dn ]
+O = IBM
+OU = HPS
+CN = grep11-c16.control23.dap.local

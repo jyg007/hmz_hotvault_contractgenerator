@@ -1,0 +1,53 @@
+<domain type='kvm'>
+	<name>vault</name>
+	<uuid>a5f2fb18-c424-4af0-95ba-7858356803f4</uuid>
+  <memory unit='KiB'>4194304</memory>
+  <vcpu placement='static'>2</vcpu>
+    <os>
+    <type arch='s390x' machine='s390-ccw-virtio'>hvm</type>
+    <boot dev='hd'/>
+  </os>
+
+  <cpu mode='host-model' check='partial'/>
+  <clock offset='utc'/>
+  <on_poweroff>destroy</on_poweroff>
+  <on_reboot>restart</on_reboot>
+  <on_crash>destroy</on_crash>
+  <devices>
+  <emulator>/usr/libexec/qemu-kvm</emulator>
+    <disk type='file' device='disk'>
+      <driver name='qemu' type='qcow2' iommu='on'/>
+      <source file='/var/lib/libvirt/images/vault-overlay.qcow2'/>
+      <backingStore type='file'>
+        <format type='qcow2'/>
+	<source file='/var/lib/libvirt/images/oso/hpcr.2.2.3.1'/>
+      </backingStore>
+      <target dev='vda' bus='virtio'/>
+      <address type='ccw' cssid='0xfe' ssid='0x0' devno='0x0000'/>
+    </disk>
+    <disk type='file' device='disk'>
+      <driver name='qemu' type='raw' cache='none' io='native' iommu='on'/>
+      <source file='/var/lib/libvirt/images/vault-cloudinit'/>
+      <target dev='vdc' bus='virtio'/>
+      <readonly/>
+      <address type='ccw' cssid='0xfe' ssid='0x0' devno='0x0002'/>
+    </disk>
+    <controller type='pci' index='0' model='pci-root'/>
+    <interface type='network'>
+      <source network='default'/>
+      <model type='virtio'/>
+      <driver name='vhost' iommu='on'/>
+      <address type='ccw' cssid='0xfe' ssid='0x0' devno='0x0007'/>
+    </interface>
+    <hostdev mode='subsystem' type='mdev' managed='no' model='vfio-ap'>
+      <source>
+        <address uuid='977152a7-1abc-43d6-bf23-01b62c73f527'/>
+      </source>
+    </hostdev>
+    <console type='pty'>
+      <target type='sclp' port='0'/>
+    </console>
+    <memballoon model='none'/>
+    <panic model='s390'/>
+  </devices>
+</domain>
