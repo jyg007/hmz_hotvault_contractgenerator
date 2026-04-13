@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#. ./config
+[ -d vault ] || mkdir vault
 . ./terraform.tfvars
 
 sed -e 's/<<-EOT/$(cat <<-EOT /' -e 's/^EOT/EOT\n)/' ./terraform.tfvars > ./o.$$ 
@@ -81,6 +81,6 @@ EOF
 
 xorriso -as mkisofs -o vaultcontract/cloud-init -V cidata -J -r user-data meta-data vendor-data
 
-rm -fr vault/c16cfg/ vault/grep11nginx/ vault/grep11srv/ vault/vaultcert
+rm -fr vault
 rm user-data meta-data vendor-data
 rm $CONTRACT_KEY
