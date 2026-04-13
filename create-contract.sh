@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#. ./config
+[ -d vault ] || mkdir vault
 . ./terraform.tfvars
 
 sed -e 's/<<-EOT/$(cat <<-EOT /' -e 's/^EOT/EOT\n)/' ./terraform.tfvars > ./o.$$ 
@@ -12,7 +12,7 @@ done
 
 . ./o.$$
 
-sed -e "s#VAULTID#${VAULTID}#" -e "s#NOTARYPUBKEY#${NOTARYPUBKEY}#" -e "s#HMZ_SERVER#${HMZ_SERVER}#" -e "s#IMAGEVAULT#${REGISTRY_URL}/${IMAGEVAULT}#" -e "s#IMAGEKMS#${REGISTRY_URL}/${IMAGEKMS}#"  -e "s#IMAGEGREP11#${REGISTRY_URL}/${IMAGEGREP11}#" -e "s#IMAGENGINX#${REGISTRY_URL}/${IMAGENGINX}#"   templates/docker-compose.yaml.template > vault/docker-compose.yaml
+sed -e "s#VAULTID#${VAULTID}#" -e "s#NOTARYPUBKEY#${NOTARYPUBKEY}#" -e "s#HMZ_SERVER#${HMZ_SERVER}#" -e "s#IMAGEVAULT#${REGISTRY_URL}/${IMAGEVAULT}#" -e "s#IMAGEKMS#${REGISTRY_URL}/${IMAGEKMS}#"  -e "s#IMAGEGREP11#${REGISTRY_URL}/${IMAGEGREP11}#" -e "s#IMAGENGINX#${REGISTRY_URL}/${IMAGENGINX}#"   templates/play.yaml.template > vault/play.yaml
 
 rm -f ./o.$$
 
@@ -23,7 +23,7 @@ sed -i '/-----BEGIN PRIVATE KEY-----/,/-----END PRIVATE KEY-----/ s/^/      /' $
 
 
 echo "system = onprem" > vault/ibm.cfg
-echo "endpoint = $GREP11URL:9876" >> vault/ibm.cfg
+echo "endpoint = localhost:9876" >> vault/ibm.cfg
 
 ####################################################################################o#
 ################ GREP11 cert generation
@@ -34,8 +34,8 @@ pushd templates/grep11 > /dev/null
 ./gen.sh 
 popd > /dev/null
 
-sed -e "s/HSMDOMAIN/$HSMDOMAIN1/" -e "s/EP11SERVERPORT/9876/" templates/grep11server.tpl > templates/grep11/grep11srv/grep11server1.yaml
-sed -e "s/HSMDOMAIN/$HSMDOMAIN2/" -e "s/EP11SERVERPORT/9876/" templates/grep11server.tpl > templates/grep11/grep11srv/grep11server2.yaml
+sed -e "s/HSMDOMAIN/$HSMDOMAIN1/" -e "s/EP11SERVERPORT/10876/" templates/grep11server.tpl > templates/grep11/grep11srv/grep11server1.yaml
+sed -e "s/HSMDOMAIN/$HSMDOMAIN2/" -e "s/EP11SERVERPORT/11876/" templates/grep11server.tpl > templates/grep11/grep11srv/grep11server2.yaml
 cp -r templates/grep11/grep11srv vault/
 cp -r templates/grep11/grep11nginx vault/
 cp -r templates/grep11/cfg vault/c16cfg
@@ -81,6 +81,6 @@ EOF
 
 xorriso -as mkisofs -o vaultcontract/cloud-init -V cidata -J -r user-data meta-data vendor-data
 
-rm -fr vault/c16cfg/ vault/grep11nginx/ vault/grep11srv/ vault/vaultcert
+rm -fr vault
 rm user-data meta-data vendor-data
 rm $CONTRACT_KEY

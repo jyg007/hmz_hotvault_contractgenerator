@@ -1,4 +1,3 @@
 type: workload
-images: {}
-compose:
+play:
   archive: $COMPOSE

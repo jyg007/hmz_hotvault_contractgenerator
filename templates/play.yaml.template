@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hotvault
+spec:
+  restartPolicy: Always
+  containers:
+    - name: kmsconnect
+      image: IMAGEKMS
+      volumeMounts:
+        - name: ibm-config
+          mountPath: /app/cfg/ibm.cfg
+        - name: vaultcert
+          mountPath: /data/cert
+          readOnly: true
+    - name: vault
+      image: IMAGEVAULT
+      env:
+        - name: PLATFORM
+          value: "kms"
+        - name: VAULT_BRIDGE_LOGLEVEL
+          value: "6"
+        - name: VAULT_CORE_LOGLEVEL
+          value: "3"
+        - name: VAULT_KMS_ENDPOINT
+          value: "localhost:10000"
+        - name: VAULT_TRUSTED_SIG
+          value: "NOTARYPUBKEY"
+        - name: VAULT_ID
+          value: "VAULTID"
+        - name: HARMONIZE_CORE_ENDPOINT
+          value: "https://HMZ_SERVER/internal/v1"
+    - name: ep11server1
+      image: IMAGEGREP11
+      securityContext:
+        privileged: true
+      volumeMounts:
+        - name: cfg
+          mountPath: /etc/c16
+        - name: srv
+          mountPath: /cfg
+        - name: grep11server1-config
+          mountPath: /etc/ep11server/ep11server.yaml
+    - name: ep11server2
+      image: IMAGEGREP11
+      securityContext:
+        privileged: true
+      volumeMounts:
+        - name: cfg
+          mountPath: /etc/c16
+        - name: srv
+          mountPath: /cfg
+        - name: grep11server2-config
+          mountPath: /etc/ep11server/ep11server.yaml
+    - name: nginx
+      image: IMAGENGINX
+      volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx/nginx.conf
+  volumes:
+    - name: ibm-config
+      hostPath:
+        path: ./ibm.cfg
+    - name: vaultcert
+      hostPath:
+        path: ./vaultcert
+    - name: cfg
+      hostPath:
+        path: ./c16cfg
+    - name: srv
+      hostPath:
+        path: ./grep11srv
+    - name: grep11server1-config
+      hostPath:
+        path: ./grep11srv/grep11server1.yaml
+    - name: grep11server2-config
+      hostPath:
+        path: ./grep11srv/grep11server2.yaml
+    - name: nginx-config
+      hostPath:
+        path: ./grep11nginx/nginx.conf

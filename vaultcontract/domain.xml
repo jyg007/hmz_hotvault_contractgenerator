@@ -20,7 +20,7 @@
       <source file='/var/lib/libvirt/images/vault-overlay.qcow2'/>
       <backingStore type='file'>
         <format type='qcow2'/>
-	<source file='/var/lib/libvirt/images/oso/hpcr.2.2.3.1'/>
+	<source file='/var/lib/libvirt/images/oso/hpcr.2.2.3.2'/>
       </backingStore>
       <target dev='vda' bus='virtio'/>
       <address type='ccw' cssid='0xfe' ssid='0x0' devno='0x0000'/>
